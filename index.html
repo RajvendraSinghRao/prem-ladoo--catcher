@@ -1,147 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ladoo Catcher Game</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        canvas {
-            border: 1px solid black;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ladoo Catcher Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f7f7f7;
+    }
+
+    #game-container {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      margin: 50px auto;
+      border: 2px solid #333;
+      background-color: #fff;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin: 20px;
+    }
+
+    #start-button,
+    #restart-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    #score-board {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+
+    #ladoo-catcher {
+      position: absolute;
+      bottom: 10px;
+      width: 100px;
+      height: 20px;
+      background-color: #ff9900;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    #falling-ladoos {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    .ladoo {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: #ff6600;
+      border-radius: 50%;
+    }
+
+    #game-over {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #game-over p {
+      font-size: 24px;
+    }
+  </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
 
-        // Game variables
-        const catcherWidth = 100;
-        const catcherHeight = 20;
-        const ladooWidth = 50;
-        const ladooHeight = 50;
-        let catcherX = canvas.width / 2 - catcherWidth / 2;
-        let catcherSpeed = 10;
-        let ladoos = [];
-        let score = 0;
-        let leftKey = false;
-        let rightKey = false;
+  <div id="game-container">
+    <h1>Ladoo Catcher Game</h1>
 
-        // Initialize Ladoo (falling object)
-        function createLadoo() {
-            const ladoo = {
-                x: Math.random() * (canvas.width - ladooWidth),
-                y: -ladooHeight,
-                speed: 3 + Math.random() * 4, // Random falling speed
-            };
-            ladoos.push(ladoo);
+    <button id="start-button">Start Game</button>
+    <div id="score-board">Score: <span id="score">0</span></div>
+    <div id="ladoo-catcher"></div>
+    <div id="game-over">
+      <p>Game Over!</p>
+      <p>Your Final Score: <span id="final-score"></span></p>
+      <button id="restart-button">Restart Game</button>
+    </div>
+    <div id="falling-ladoos"></div>
+  </div>
+
+  <script>
+    const startButton = document.getElementById('start-button');
+    const restartButton = document.getElementById('restart-button');
+    const gameContainer = document.getElementById('game-container');
+    const scoreElement = document.getElementById('score');
+    const scoreBoard = document.getElementById('score-board');
+    const gameOverElement = document.getElementById('game-over');
+    const finalScoreElement = document.getElementById('final-score');
+    const fallingLadoos = document.getElementById('falling-ladoos');
+    const ladooCatcher = document.getElementById('ladoo-catcher');
+    let score = 0;
+    let missedLadoos = 0;
+    let gameInterval;
+    let ladoos = [];
+
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', restartGame);
+
+    function startGame() {
+      startButton.style.display = 'none';
+      score = 0;
+      missedLadoos = 0;
+      scoreElement.textContent = score;
+      gameOverElement.style.display = 'none';
+      fallingLadoos.innerHTML = ''; // Clear any falling ladoos
+
+      gameInterval = setInterval(gameLoop, 20);
+      generateLadoos();
+      document.addEventListener('mousemove', moveCatcher);
+    }
+
+    function gameLoop() {
+      // Move ladoos
+      ladoos.forEach((ladoo, index) => {
+        if (ladoo) {
+          ladoo.style.top = `${ladoo.offsetTop + 2}px`;
+
+          // Check if ladoo missed the catcher
+          if (ladoo.offsetTop > gameContainer.offsetHeight) {
+            missedLadoos++;
+            ladoo.remove();
+            ladoos[index] = null; // Remove this ladoo from the array
+          }
+
+          // Check if ladoo caught
+          if (isLadooCaught(ladoo)) {
+            score++;
+            scoreElement.textContent = score;
+            ladoo.remove();
+            ladoos[index] = null;
+          }
         }
+      });
 
-        // Handle key events
-        window.addEventListener('keydown', (event) => {
-            if (event.key === 'ArrowLeft') {
-                leftKey = true;
-            }
-            if (event.key === 'ArrowRight') {
-                rightKey = true;
-            }
-        });
+      // End game if missed 3 ladoos
+      if (missedLadoos >= 3) {
+        endGame();
+      }
+    }
 
-        window.addEventListener('keyup', (event) => {
-            if (event.key === 'ArrowLeft') {
-                leftKey = false;
-            }
-            if (event.key === 'ArrowRight') {
-                rightKey = false;
-            }
-        });
-
-        // Update the position of the catcher
-        function updateCatcher() {
-            if (leftKey && catcherX > 0) {
-                catcherX -= catcherSpeed;
-            }
-            if (rightKey && catcherX < canvas.width - catcherWidth) {
-                catcherX += catcherSpeed;
-            }
+    function generateLadoos() {
+      setInterval(() => {
+        if (gameInterval) {
+          const ladoo = document.createElement('div');
+          ladoo.classList.add('ladoo');
+          ladoo.style.left = `${Math.random() * (gameContainer.offsetWidth - 30)}px`;
+          ladoo.style.top = '-30px';
+          fallingLadoos.appendChild(ladoo);
+          ladoos.push(ladoo);
         }
+      }, 1000);
+    }
 
-        // Draw the catcher
-        function drawCatcher() {
-            ctx.fillStyle = 'black';
-            ctx.fillRect(catcherX, canvas.height - catcherHeight, catcherWidth, catcherHeight);
-        }
+    function isLadooCaught(ladoo) {
+      const catcherRect = ladooCatcher.getBoundingClientRect();
+      const ladooRect = ladoo.getBoundingClientRect();
 
-        // Update the position of the ladoos and check for collisions
-        function updateLadoos() {
-            for (let i = ladoos.length - 1; i >= 0; i--) {
-                let ladoo = ladoos[i];
-                ladoo.y += ladoo.speed; // Move the ladoo down
+      return (
+        ladooRect.left < catcherRect.left + catcherRect.width &&
+        ladooRect.left + ladooRect.width > catcherRect.left &&
+        ladooRect.top + ladooRect.height > catcherRect.top
+      );
+    }
 
-                // Check if ladoo falls off screen (missed)
-                if (ladoo.y > canvas.height) {
-                    ladoos.splice(i, 1);
-                    score -= 1; // Decrease score on miss
-                }
+    function moveCatcher(event) {
+      const catcherWidth = ladooCatcher.offsetWidth;
+      const gameContainerRect = gameContainer.getBoundingClientRect();
+      let newX = event.clientX - gameContainerRect.left - catcherWidth / 2;
 
-                // Check if ladoo is caught by the catcher
-                if (
-                    ladoo.x < catcherX + catcherWidth &&
-                    ladoo.x + ladooWidth > catcherX &&
-                    ladoo.y < canvas.height &&
-                    ladoo.y + ladooHeight > canvas.height - catcherHeight
-                ) {
-                    ladoos.splice(i, 1);
-                    createLadoo(); // Add new ladoo
-                    score += 1; // Increase score on catch
-                }
-            }
-        }
+      // Prevent the catcher from going out of bounds
+      newX = Math.max(0, Math.min(newX, gameContainer.offsetWidth - catcherWidth));
 
-        // Draw the ladoos
-        function drawLadoos() {
-            ctx.fillStyle = 'yellow';
-            for (let ladoo of ladoos) {
-                ctx.fillRect(ladoo.x, ladoo.y, ladooWidth, ladooHeight);
-            }
-        }
+      ladooCatcher.style.left = `${newX}px`;
+    }
 
-        // Display the score
-        function drawScore() {
-            ctx.font = '30px Arial';
-            ctx.fillStyle = 'black';
-            ctx.fillText('Score: ' + score, 10, 30);
-        }
+    function endGame() {
+      clearInterval(gameInterval);
+      gameInterval = null;
+      document.removeEventListener('mousemove', moveCatcher);
+      gameOverElement.style.display = 'block';
+      finalScoreElement.textContent = score;
+    }
 
-        // Main game loop
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
-
-            updateCatcher();
-            updateLadoos();
-            drawCatcher();
-            drawLadoos();
-            drawScore();
-
-            // Create new ladoo every 60 frames (about once per second)
-            if (Math.random() < 0.02) {
-                createLadoo();
-            }
-
-            requestAnimationFrame(gameLoop); // Call the next frame
-        }
-
-        // Start the game loop
-        gameLoop();
-    </script>
+    function restartGame() {
+      missedLadoos = 0;
+      score = 0;
+      scoreElement.textContent = score;
+      fallingLadoos.innerHTML = '';
+      gameOverElement.style.display = 'none';
+      startButton.style.display = 'block';
+    }
+  </script>
 </body>
 </html>
