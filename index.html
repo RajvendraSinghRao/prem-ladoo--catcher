@@ -85,9 +85,9 @@
 
     .ladoo {
       position: absolute;
-      width: 10px; /* Set ladoo size to 10px */
-      height: 10px; /* Set ladoo size to 10px */
-      background-size: 10px 10px; /* Scale the image to fit 10x10 */
+      width: 20px; /* Set ladoo size to 20px */
+      height: 20px; /* Set ladoo size to 20px */
+      background-size: 20px 20px; /* Scale the image to fit 20x20 */
       background-position: center;
       background-repeat: no-repeat;
     }
@@ -219,7 +219,7 @@
       setInterval(() => {
         if (gameInterval) {
           const ladoo = document.createElement('div');
-          const size = 10; // Ladoo size is 10px for all devices
+          const size = 20; // Ladoo size is 20px for all devices
 
           ladoo.classList.add('ladoo');
           
@@ -237,7 +237,7 @@
 
           ladoo.style.backgroundImage = `url(${randomImage})`;
           ladoo.style.left = `${randomX}px`; // Ensure ladoo spawns inside the container without touching the borders
-          ladoo.style.top = '-10px'; // Start above the game container
+          ladoo.style.top = '-20px'; // Start above the game container
           ladoo.style.width = `${size}px`;
           ladoo.style.height = `${size}px`;
           fallingLadoos.appendChild(ladoo);
