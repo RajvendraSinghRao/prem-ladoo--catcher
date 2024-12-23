@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,17 +16,22 @@
       font-family: Arial, sans-serif;
       text-align: center;
       background-color: #f7f7f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
     }
 
     #game-container {
       position: relative;
-      width: 100%;
+      width: 90%;
       max-width: 600px;
-      height: 400px;
-      margin: 50px auto;
-      border: 2px solid #333;
+      height: 350px;
       background-color: #fff;
+      border: 2px solid #333;
       overflow: hidden;
+      margin-bottom: 20px;
     }
 
     h1 {
@@ -50,6 +56,15 @@
       margin-top: 20px;
     }
 
+    #game-over {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #game-over p {
+      font-size: 24px;
+    }
+
     #ladoo-catcher {
       position: absolute;
       bottom: 10px;
@@ -59,15 +74,6 @@
       left: 50%;
       transform: translateX(-50%);
       border-radius: 5px;
-    }
-
-    #game-over {
-      display: none;
-      margin-top: 20px;
-    }
-
-    #game-over p {
-      font-size: 24px;
     }
 
     #falling-ladoos {
@@ -87,8 +93,8 @@
 
     @media (max-width: 600px) {
       #game-container {
-        width: 100%;
-        height: 300px;
+        width: 95%;
+        height: 280px;
       }
 
       h1 {
@@ -100,13 +106,22 @@
       }
 
       #ladoo-catcher {
-        width: 80px; /* Smaller catcher for mobile */
+        width: 80px;
       }
 
       #start-button,
       #restart-button {
         font-size: 16px;
         padding: 8px 16px;
+      }
+
+      .ladoo {
+        width: 25px;
+        height: 25px;
+      }
+
+      #game-over p {
+        font-size: 20px;
       }
     }
   </style>
@@ -208,12 +223,13 @@
           
           ladoo.classList.add('ladoo');
           
-          // Adjust ladoo spawn position to prevent it from spawning near the borders (left or right within 50px)
-          const padding = 50; // Padding on both sides (left and right)
-          const maxX = gameContainer.offsetWidth - size - padding; // Max X position for the ladoo
+          // Adjust ladoo spawn position to prevent it from spawning near the borders (left or right within 50px on left and 100px on right)
+          const leftPadding = 50; // Left padding
+          const rightPadding = 100; // Right padding
+          const maxX = gameContainer.offsetWidth - size - rightPadding; // Max X position for the ladoo
           
-          // Ensure the ladoo spawns only within the allowed area
-          const randomX = Math.random() * maxX + padding;
+          // Ensure the ladoo spawns only within the allowed area (between leftPadding and maxX)
+          const randomX = Math.random() * (maxX - leftPadding) + leftPadding;
 
           // Randomly select a ladoo image (gl1, gl2, or gl3) with .png extension
           const ladooImages = ['gl1.png', 'gl2.png', 'gl3.png']; // Update with the correct paths to your .png images
