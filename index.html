@@ -68,10 +68,10 @@
     #ladoo-catcher {
       position: absolute;
       bottom: 20px;
-      width: 10%; /* Full width */
-      height: 120px; /* Increased height for the plate */
+      width: 10%;
+      height: 120px;
       background-image: url('prem.png'); /* Path to your prem.png image */
-      background-size: contain; /* Make sure the image is fully visible */
+      background-size: contain;
       background-position: center;
       background-repeat: no-repeat;
       left: 0;
@@ -87,7 +87,7 @@
 
     .falling-item {
       position: absolute;
-      width: 20px; /* Size of ladoo and stone */
+      width: 20px;
       height: 20px;
       background-size: cover;
       background-position: center;
@@ -192,9 +192,11 @@
         if (item) {
           item.style.top = `${item.offsetTop + fallingSpeed}px`;
 
-          // Check if item missed the catcher
+          // Check if item missed the catcher (only count missed ladoos)
           if (item.offsetTop > gameContainer.offsetHeight) {
-            missedItems++;
+            if (!item.classList.contains('stone')) {
+              missedItems++; // Only increment missedItems for ladoos
+            }
             item.remove();
             items[index] = null; // Remove this item from the array
           }
@@ -213,7 +215,7 @@
         }
       });
 
-      // End game if missed 3 items
+      // End game if missed 3 ladoos (not stones)
       if (missedItems >= 3) {
         endGame();
       }
