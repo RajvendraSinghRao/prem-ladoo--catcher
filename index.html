@@ -61,6 +61,15 @@
       border-radius: 5px;
     }
 
+    #game-over {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #game-over p {
+      font-size: 24px;
+    }
+
     #falling-ladoos {
       position: absolute;
       top: 0;
@@ -74,15 +83,6 @@
       height: 30px;
       background-size: cover;
       background-position: center;
-    }
-
-    #game-over {
-      display: none;
-      margin-top: 20px;
-    }
-
-    #game-over p {
-      font-size: 24px;
     }
 
     @media (max-width: 600px) {
@@ -208,7 +208,7 @@
           
           ladoo.classList.add('ladoo');
           
-          // Adjust ladoo spawn position to prevent it from spawning near the borders
+          // Adjust ladoo spawn position to prevent it from spawning near the borders (left or right within 50px)
           const padding = 50; // Padding on both sides (left and right)
           const maxX = gameContainer.offsetWidth - size - padding; // Max X position for the ladoo
           
