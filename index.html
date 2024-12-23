@@ -27,9 +27,7 @@
       width: 90%;
       height: 80%;
       background-image: url('back.jpg'); /* Add your background image here */
-      background-size: cover; /* Cover the entire game board */
-      background-position: center; /* Center the background image */
-      background-repeat: no-repeat; /* Prevent repeating the image */
+      background-size: cover;
       border: 2px solid #333;
       overflow: hidden;
       margin-bottom: 20px;
@@ -69,10 +67,10 @@
     #ladoo-catcher {
       position: absolute;
       bottom: 20px;
-      width: 10%; /* Full width */
-      height: 120px; /* Increased height for the plate */
+      width: 10%; 
+      height: 120px; 
       background-image: url('prem.png'); /* Path to your prem.png image */
-      background-size: contain; /* Make sure the image is fully visible */
+      background-size: contain;
       background-position: center;
       background-repeat: no-repeat;
       left: 0;
@@ -88,11 +86,10 @@
 
     .ladoo {
       position: absolute;
-      width: 20px; /* Set ladoo size to 20px */
-      height: 20px; /* Set ladoo size to 20px */
-      background-size: 20px 20px; /* Scale the image to fit 20x20 */
+      width: 20px; /* Ladoo size is set to 20px */
+      height: 20px;
+      background-size: cover;
       background-position: center;
-      background-repeat: no-repeat;
     }
 
     @media (max-width: 600px) {
@@ -118,6 +115,11 @@
       #restart-button {
         font-size: 16px;
         padding: 8px 16px;
+      }
+
+      .ladoo {
+        width: 20px; /* Keep ladoo size 20px on mobile */
+        height: 20px;
       }
 
       #game-over p {
@@ -158,8 +160,8 @@
     let fallingSpeed = 2;
     let spawnInterval = 1000;
     let level = 1;
-    let maxLadoosOnScreen = 10; // Limit the number of ladoos at a time
-    let levelSpeedIncrease = 0.5; // Speed increase per level
+    let levelSpeedIncrease = 0.5;
+    let maxLadoosOnScreen = 20; // Allow more ladoos on screen
 
     startButton.addEventListener('click', startGame);
     restartButton.addEventListener('click', restartGame);
@@ -173,31 +175,28 @@
       spawnInterval = 1000;
       scoreElement.textContent = score;
       gameOverElement.style.display = 'none';
-      fallingLadoos.innerHTML = ''; // Clear any falling ladoos
+      fallingLadoos.innerHTML = ''; 
 
       gameInterval = setInterval(gameLoop, 20);
       generateLadoos();
       if (window.innerWidth <= 600) {
-        document.addEventListener('touchmove', moveCatcherMobile); // Mobile device move catcher
+        document.addEventListener('touchmove', moveCatcherMobile);
       } else {
-        document.addEventListener('mousemove', moveCatcherDesktop); // Desktop device move catcher
+        document.addEventListener('mousemove', moveCatcherDesktop);
       }
     }
 
     function gameLoop() {
-      // Move ladoos
       ladoos.forEach((ladoo, index) => {
         if (ladoo) {
           ladoo.style.top = `${ladoo.offsetTop + fallingSpeed}px`;
 
-          // Check if ladoo missed the catcher
           if (ladoo.offsetTop > gameContainer.offsetHeight) {
             missedLadoos++;
             ladoo.remove();
-            ladoos[index] = null; // Remove this ladoo from the array
+            ladoos[index] = null;
           }
 
-          // Check if ladoo caught
           if (isLadooCaught(ladoo)) {
             score++;
             scoreElement.textContent = score;
@@ -207,12 +206,10 @@
         }
       });
 
-      // End game if missed 3 ladoos
       if (missedLadoos >= 3) {
         endGame();
       }
 
-      // Increase difficulty over time based on score
       if (score >= level * 10) {
         level++;
         increaseDifficulty();
@@ -221,27 +218,23 @@
 
     function generateLadoos() {
       setInterval(() => {
-        if (gameInterval && ladoos.length < maxLadoosOnScreen) {  // Limit the number of ladoos on screen
+        if (gameInterval) {
           const ladoo = document.createElement('div');
-          const size = 20; // Ladoo size is 20px for all devices
+          const size = 20; 
 
           ladoo.classList.add('ladoo');
           
-          // Adjust ladoo spawn position to prevent it from spawning near the borders (left or right within 50px on left and 100px on right)
-          const leftPadding = 50; // Left padding
-          const rightPadding = 100; // Right padding
-          const maxX = gameContainer.offsetWidth - size - rightPadding; // Max X position for the ladoo
-          
-          // Ensure the ladoo spawns only within the allowed area (between leftPadding and maxX)
+          const leftPadding = 50; 
+          const rightPadding = 100; 
+          const maxX = gameContainer.offsetWidth - size - rightPadding;
           const randomX = Math.random() * (maxX - leftPadding) + leftPadding;
 
-          // Randomly select a ladoo image (gl1, gl2, or gl3) with .png extension
-          const ladooImages = ['gl1.png', 'gl2.png', 'gl3.png']; // Update with the correct paths to your .png images
+          const ladooImages = ['gl1.png', 'gl2.png', 'gl3.png'];
           const randomImage = ladooImages[Math.floor(Math.random() * ladooImages.length)];
 
           ladoo.style.backgroundImage = `url(${randomImage})`;
-          ladoo.style.left = `${randomX}px`; // Ensure ladoo spawns inside the container without touching the borders
-          ladoo.style.top = '-20px'; // Start above the game container
+          ladoo.style.left = `${randomX}px`;
+          ladoo.style.top = '-20px';
           ladoo.style.width = `${size}px`;
           ladoo.style.height = `${size}px`;
           fallingLadoos.appendChild(ladoo);
@@ -265,21 +258,16 @@
       const gameContainerRect = gameContainer.getBoundingClientRect();
       let newX = event.clientX - gameContainerRect.left - ladooCatcher.offsetWidth / 2;
 
-      // Prevent the catcher from going out of bounds (left and right)
-      newX = Math.max(0, Math.min(newX, gameContainer.offsetWidth - ladooCatcher.offsetWidth)); // Ensure it doesn't go out of bounds
-
+      newX = Math.max(0, Math.min(newX, gameContainer.offsetWidth - ladooCatcher.offsetWidth));
       ladooCatcher.style.left = `${newX}px`;
     }
 
     function moveCatcherMobile(event) {
-      event.preventDefault(); // Prevent scrolling on mobile devices
-
+      event.preventDefault();
       const gameContainerRect = gameContainer.getBoundingClientRect();
       let newX = event.touches[0].clientX - gameContainerRect.left - ladooCatcher.offsetWidth / 2;
 
-      // Prevent the catcher from going out of bounds (left and right)
-      newX = Math.max(0, Math.min(newX, gameContainer.offsetWidth - ladooCatcher.offsetWidth)); // Ensure it doesn't go out of bounds
-
+      newX = Math.max(0, Math.min(newX, gameContainer.offsetWidth - ladooCatcher.offsetWidth));
       ladooCatcher.style.left = `${newX}px`;
     }
 
@@ -302,12 +290,10 @@
     }
 
     function increaseDifficulty() {
-      // Increase falling speed and decrease spawn interval (making game harder)
       fallingSpeed += levelSpeedIncrease;
-      spawnInterval -= 50; // Decrease spawn interval, making ladoos fall more often
-      if (spawnInterval < 400) spawnInterval = 400; // Minimum spawn interval to avoid too fast
+      spawnInterval -= 50; 
+      if (spawnInterval < 400) spawnInterval = 400;
 
-      // Update the score board to show the level
       scoreElement.textContent = `${score} (Level: ${level})`;
     }
   </script>
