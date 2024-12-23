@@ -100,7 +100,6 @@
     const restartButton = document.getElementById('restart-button');
     const gameContainer = document.getElementById('game-container');
     const scoreElement = document.getElementById('score');
-    const scoreBoard = document.getElementById('score-board');
     const gameOverElement = document.getElementById('game-over');
     const finalScoreElement = document.getElementById('final-score');
     const fallingLadoos = document.getElementById('falling-ladoos');
@@ -109,6 +108,11 @@
     let missedLadoos = 0;
     let gameInterval;
     let ladoos = [];
+    let fallingSpeed = 2;
+    let spawnInterval = 1000;
+    let level = 1;
+    let levelSpeedIncrease = 0.5; // Speed increase per level
+    let levelSizeDecrease = 2; // Ladoo size decrease per level
 
     startButton.addEventListener('click', startGame);
     restartButton.addEventListener('click', restartGame);
@@ -117,6 +121,9 @@
       startButton.style.display = 'none';
       score = 0;
       missedLadoos = 0;
+      level = 1;
+      fallingSpeed = 2;
+      spawnInterval = 1000;
       scoreElement.textContent = score;
       gameOverElement.style.display = 'none';
       fallingLadoos.innerHTML = ''; // Clear any falling ladoos
@@ -130,7 +137,7 @@
       // Move ladoos
       ladoos.forEach((ladoo, index) => {
         if (ladoo) {
-          ladoo.style.top = `${ladoo.offsetTop + 2}px`;
+          ladoo.style.top = `${ladoo.offsetTop + fallingSpeed}px`;
 
           // Check if ladoo missed the catcher
           if (ladoo.offsetTop > gameContainer.offsetHeight) {
@@ -153,19 +160,28 @@
       if (missedLadoos >= 3) {
         endGame();
       }
+
+      // Increase difficulty over time based on score
+      if (score >= level * 10) {
+        level++;
+        increaseDifficulty();
+      }
     }
 
     function generateLadoos() {
       setInterval(() => {
         if (gameInterval) {
           const ladoo = document.createElement('div');
+          const size = 30 - (level * levelSizeDecrease); // Reduce size per level
           ladoo.classList.add('ladoo');
-          ladoo.style.left = `${Math.random() * (gameContainer.offsetWidth - 30)}px`;
+          ladoo.style.left = `${Math.random() * (gameContainer.offsetWidth - size)}px`;
           ladoo.style.top = '-30px';
+          ladoo.style.width = `${size}px`;
+          ladoo.style.height = `${size}px`;
           fallingLadoos.appendChild(ladoo);
           ladoos.push(ladoo);
         }
-      }, 1000);
+      }, spawnInterval);
     }
 
     function isLadooCaught(ladoo) {
@@ -205,6 +221,16 @@
       fallingLadoos.innerHTML = '';
       gameOverElement.style.display = 'none';
       startButton.style.display = 'block';
+    }
+
+    function increaseDifficulty() {
+      // Increase falling speed and decrease spawn interval (making game harder)
+      fallingSpeed += levelSpeedIncrease;
+      spawnInterval -= 50; // Decrease spawn interval, making ladoos fall more often
+      if (spawnInterval < 400) spawnInterval = 400; // Minimum spawn interval to avoid too fast
+
+      // Update the score board to show the level
+      scoreElement.textContent = `${score} (Level: ${level})`;
     }
   </script>
 </body>
