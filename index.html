@@ -212,12 +212,15 @@
           const padding = 50; // Padding on both sides (left and right)
           const maxX = gameContainer.offsetWidth - size - padding; // Max X position for the ladoo
           
+          // Ensure the ladoo spawns only within the allowed area
+          const randomX = Math.random() * maxX + padding;
+
           // Randomly select a ladoo image (gl1, gl2, or gl3) with .png extension
           const ladooImages = ['gl1.png', 'gl2.png', 'gl3.png']; // Update with the correct paths to your .png images
           const randomImage = ladooImages[Math.floor(Math.random() * ladooImages.length)];
 
           ladoo.style.backgroundImage = `url(${randomImage})`;
-          ladoo.style.left = `${Math.random() * maxX + padding}px`; // Spawn within the container with padding
+          ladoo.style.left = `${randomX}px`; // Ensure ladoo spawns inside the container without touching the borders
           ladoo.style.top = '-30px';
           ladoo.style.width = `${size}px`;
           ladoo.style.height = `${size}px`;
