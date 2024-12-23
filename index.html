@@ -72,8 +72,8 @@
       position: absolute;
       width: 30px;
       height: 30px;
-      background-color: #ff6600;
-      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
     }
 
     #game-over {
@@ -212,6 +212,11 @@
           const padding = 50; // Padding on both sides (left and right)
           const maxX = gameContainer.offsetWidth - size - padding; // Max X position for the ladoo
           
+          // Randomly select a ladoo image (gl1, gl2, or gl3)
+          const ladooImages = ['gl1.jpg', 'gl2.jpg', 'gl3.jpg']; // Use your actual image paths
+          const randomImage = ladooImages[Math.floor(Math.random() * ladooImages.length)];
+
+          ladoo.style.backgroundImage = `url(${randomImage})`;
           ladoo.style.left = `${Math.random() * maxX + padding}px`; // Spawn within the container with padding
           ladoo.style.top = '-30px';
           ladoo.style.width = `${size}px`;
@@ -273,3 +278,4 @@
   </script>
 </body>
 </html>
+
