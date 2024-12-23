@@ -160,7 +160,6 @@
     let spawnInterval = 1000;
     let level = 1;
     let levelSpeedIncrease = 0.5; // Speed increase per level
-    let levelSizeDecrease = 2; // Ladoo size decrease per level
 
     startButton.addEventListener('click', startGame);
     restartButton.addEventListener('click', restartGame);
@@ -220,8 +219,8 @@
       setInterval(() => {
         if (gameInterval) {
           const ladoo = document.createElement('div');
-          const size = 30 - (level * levelSizeDecrease); // Reduce size per level
-          
+          const size = 30; // Keep ladoo size constant
+
           ladoo.classList.add('ladoo');
           
           // Adjust ladoo spawn position to prevent it from spawning near the borders (left or right within 50px on left and 100px on right)
