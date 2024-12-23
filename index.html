@@ -155,6 +155,7 @@
     let fallingSpeed = 2;
     let spawnInterval = 1000;
     let level = 1;
+    let maxLadoosOnScreen = 10; // Limit the number of ladoos at a time
     let levelSpeedIncrease = 0.5; // Speed increase per level
 
     startButton.addEventListener('click', startGame);
@@ -217,7 +218,7 @@
 
     function generateLadoos() {
       setInterval(() => {
-        if (gameInterval) {
+        if (gameInterval && ladoos.length < maxLadoosOnScreen) {  // Limit the number of ladoos on screen
           const ladoo = document.createElement('div');
           const size = 20; // Ladoo size is 20px for all devices
 
