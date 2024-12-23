@@ -212,8 +212,8 @@
           const padding = 50; // Padding on both sides (left and right)
           const maxX = gameContainer.offsetWidth - size - padding; // Max X position for the ladoo
           
-          // Randomly select a ladoo image (gl1, gl2, or gl3)
-          const ladooImages = ['gl1.jpg', 'gl2.jpg', 'gl3.jpg']; // Use your actual image paths
+          // Randomly select a ladoo image (gl1, gl2, or gl3) with .png extension
+          const ladooImages = ['gl1.png', 'gl2.png', 'gl3.png']; // Update with the correct paths to your .png images
           const randomImage = ladooImages[Math.floor(Math.random() * ladooImages.length)];
 
           ladoo.style.backgroundImage = `url(${randomImage})`;
@@ -278,4 +278,3 @@
   </script>
 </body>
 </html>
-
