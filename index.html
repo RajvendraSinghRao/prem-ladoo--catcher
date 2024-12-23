@@ -232,7 +232,7 @@
       const gameContainerRect = gameContainer.getBoundingClientRect();
       let newX = event.clientX - gameContainerRect.left - catcherWidth / 2;
 
-      // Prevent the catcher from going out of bounds
+      // Prevent the catcher from going out of bounds (left and right)
       newX = Math.max(0, Math.min(newX, gameContainer.offsetWidth - catcherWidth));
 
       ladooCatcher.style.left = `${newX}px`;
