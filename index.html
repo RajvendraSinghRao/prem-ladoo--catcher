@@ -67,11 +67,12 @@
     #ladoo-catcher {
       position: absolute;
       bottom: 10px;
-      width: 120px;
-      height: 30px;
-      background-image: url('prem.png'); /* Update with the correct path to your prem.png image */
-      background-size: contain;
-      background-repeat: no-repeat;
+      width: 150px; /* Increased width */
+      height: 40px; /* Increased height */
+      background-image: url('prem.png'); /* Path to your prem.png image */
+      background-size: contain; /* Ensures image size is scaled to fit inside the container */
+      background-position: center; /* Centers the image inside the plate */
+      background-repeat: no-repeat; /* Prevents image repetition */
       left: 50%;
       transform: translateX(-50%);
     }
@@ -106,8 +107,8 @@
       }
 
       #ladoo-catcher {
-        width: 100px;
-        height: 25px;
+        width: 120px; /* Adjusted for mobile size */
+        height: 35px; /* Adjusted for mobile size */
       }
 
       #start-button,
