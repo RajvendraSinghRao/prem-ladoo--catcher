@@ -208,8 +208,8 @@
           
           ladoo.classList.add('ladoo');
           
-          // Adjust ladoo spawn position: Add padding on left and right edges
-          const padding = 30; // Padding on both sides (left and right)
+          // Adjust ladoo spawn position to prevent it from spawning near the borders
+          const padding = 50; // Padding on both sides (left and right)
           const maxX = gameContainer.offsetWidth - size - padding; // Max X position for the ladoo
           
           ladoo.style.left = `${Math.random() * maxX + padding}px`; // Spawn within the container with padding
