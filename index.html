@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ladoo Catcher Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game variables
+        const catcherWidth = 100;
+        const catcherHeight = 20;
+        const ladooWidth = 50;
+        const ladooHeight = 50;
+        let catcherX = canvas.width / 2 - catcherWidth / 2;
+        let catcherSpeed = 10;
+        let ladoos = [];
+        let score = 0;
+        let leftKey = false;
+        let rightKey = false;
+
+        // Initialize Ladoo (falling object)
+        function createLadoo() {
+            const ladoo = {
+                x: Math.random() * (canvas.width - ladooWidth),
+                y: -ladooHeight,
+                speed: 3 + Math.random() * 4, // Random falling speed
+            };
+            ladoos.push(ladoo);
+        }
+
+        // Handle key events
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') {
+                leftKey = true;
+            }
+            if (event.key === 'ArrowRight') {
+                rightKey = true;
+            }
+        });
+
+        window.addEventListener('keyup', (event) => {
+            if (event.key === 'ArrowLeft') {
+                leftKey = false;
+            }
+            if (event.key === 'ArrowRight') {
+                rightKey = false;
+            }
+        });
+
+        // Update the position of the catcher
+        function updateCatcher() {
+            if (leftKey && catcherX > 0) {
+                catcherX -= catcherSpeed;
+            }
+            if (rightKey && catcherX < canvas.width - catcherWidth) {
+                catcherX += catcherSpeed;
+            }
+        }
+
+        // Draw the catcher
+        function drawCatcher() {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(catcherX, canvas.height - catcherHeight, catcherWidth, catcherHeight);
+        }
+
+        // Update the position of the ladoos and check for collisions
+        function updateLadoos() {
+            for (let i = ladoos.length - 1; i >= 0; i--) {
+                let ladoo = ladoos[i];
+                ladoo.y += ladoo.speed; // Move the ladoo down
+
+                // Check if ladoo falls off screen (missed)
+                if (ladoo.y > canvas.height) {
+                    ladoos.splice(i, 1);
+                    score -= 1; // Decrease score on miss
+                }
+
+                // Check if ladoo is caught by the catcher
+                if (
+                    ladoo.x < catcherX + catcherWidth &&
+                    ladoo.x + ladooWidth > catcherX &&
+                    ladoo.y < canvas.height &&
+                    ladoo.y + ladooHeight > canvas.height - catcherHeight
+                ) {
+                    ladoos.splice(i, 1);
+                    createLadoo(); // Add new ladoo
+                    score += 1; // Increase score on catch
+                }
+            }
+        }
+
+        // Draw the ladoos
+        function drawLadoos() {
+            ctx.fillStyle = 'yellow';
+            for (let ladoo of ladoos) {
+                ctx.fillRect(ladoo.x, ladoo.y, ladooWidth, ladooHeight);
+            }
+        }
+
+        // Display the score
+        function drawScore() {
+            ctx.font = '30px Arial';
+            ctx.fillStyle = 'black';
+            ctx.fillText('Score: ' + score, 10, 30);
+        }
+
+        // Main game loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
+
+            updateCatcher();
+            updateLadoos();
+            drawCatcher();
+            drawLadoos();
+            drawScore();
+
+            // Create new ladoo every 60 frames (about once per second)
+            if (Math.random() < 0.02) {
+                createLadoo();
+            }
+
+            requestAnimationFrame(gameLoop); // Call the next frame
+        }
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>
