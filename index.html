@@ -114,7 +114,7 @@
 <body>
 
   <div id="game-container">
-    <h1>Ladoo Catcher Game</h1>
+    <h1>Prem Ladoo Catcher</h1>
 
     <button id="start-button">Start Game</button>
     <div id="score-board">Score: <span id="score">0</span></div>
@@ -205,8 +205,14 @@
         if (gameInterval) {
           const ladoo = document.createElement('div');
           const size = 30 - (level * levelSizeDecrease); // Reduce size per level
+          
           ladoo.classList.add('ladoo');
-          ladoo.style.left = `${Math.random() * (gameContainer.offsetWidth - size)}px`;
+          
+          // Adjust ladoo spawn position: Add padding on left and right edges
+          const padding = 30; // Padding on both sides (left and right)
+          const maxX = gameContainer.offsetWidth - size - padding; // Max X position for the ladoo
+          
+          ladoo.style.left = `${Math.random() * maxX + padding}px`; // Spawn within the container with padding
           ladoo.style.top = '-30px';
           ladoo.style.width = `${size}px`;
           ladoo.style.height = `${size}px`;
