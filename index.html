@@ -272,6 +272,8 @@
     }
 
     function moveCatcherMobile(event) {
+      event.preventDefault(); // Prevent scrolling on mobile devices
+
       const gameContainerRect = gameContainer.getBoundingClientRect();
       let newX = event.touches[0].clientX - gameContainerRect.left - ladooCatcher.offsetWidth / 2;
 
