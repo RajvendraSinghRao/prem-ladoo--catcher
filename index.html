@@ -26,11 +26,12 @@
       position: relative;
       width: 90%;
       height: 80%;
-      background-image: url('back.jpg'); /* Add your background image here */
-      background-size: cover;
+      background-color: #fff;
       border: 2px solid #333;
       overflow: hidden;
       margin-bottom: 20px;
+      background-image: url('back.jpg'); /* Background image */
+      background-size: cover;
     }
 
     h1 {
@@ -67,26 +68,26 @@
     #ladoo-catcher {
       position: absolute;
       bottom: 20px;
-      width: 10%; 
-      height: 120px; 
+      width: 10%; /* Full width */
+      height: 120px; /* Increased height for the plate */
       background-image: url('prem.png'); /* Path to your prem.png image */
-      background-size: contain;
+      background-size: contain; /* Make sure the image is fully visible */
       background-position: center;
       background-repeat: no-repeat;
       left: 0;
       transform: translateX(0);
     }
 
-    #falling-ladoos {
+    #falling-items {
       position: absolute;
       top: 0;
       width: 100%;
       pointer-events: none;
     }
 
-    .ladoo {
+    .falling-item {
       position: absolute;
-      width: 20px; /* Ladoo size is set to 20px */
+      width: 20px; /* Size of ladoo and stone */
       height: 20px;
       background-size: cover;
       background-position: center;
@@ -117,9 +118,9 @@
         padding: 8px 16px;
       }
 
-      .ladoo {
-        width: 20px; /* Keep ladoo size 20px on mobile */
-        height: 20px;
+      .falling-item {
+        width: 10px;
+        height: 10px;
       }
 
       #game-over p {
@@ -141,7 +142,7 @@
       <p>Your Final Score: <span id="final-score"></span></p>
       <button id="restart-button">Restart Game</button>
     </div>
-    <div id="falling-ladoos"></div>
+    <div id="falling-items"></div>
   </div>
 
   <script>
@@ -151,17 +152,16 @@
     const scoreElement = document.getElementById('score');
     const gameOverElement = document.getElementById('game-over');
     const finalScoreElement = document.getElementById('final-score');
-    const fallingLadoos = document.getElementById('falling-ladoos');
+    const fallingItems = document.getElementById('falling-items');
     const ladooCatcher = document.getElementById('ladoo-catcher');
     let score = 0;
-    let missedLadoos = 0;
+    let missedItems = 0;
     let gameInterval;
-    let ladoos = [];
+    let items = [];
     let fallingSpeed = 2;
     let spawnInterval = 1000;
     let level = 1;
-    let levelSpeedIncrease = 0.5;
-    let maxLadoosOnScreen = 20; // Allow more ladoos on screen
+    let levelSpeedIncrease = 0.5; // Speed increase per level
 
     startButton.addEventListener('click', startGame);
     restartButton.addEventListener('click', restartGame);
@@ -169,88 +169,103 @@
     function startGame() {
       startButton.style.display = 'none';
       score = 0;
-      missedLadoos = 0;
+      missedItems = 0;
       level = 1;
       fallingSpeed = 2;
       spawnInterval = 1000;
       scoreElement.textContent = score;
       gameOverElement.style.display = 'none';
-      fallingLadoos.innerHTML = ''; 
+      fallingItems.innerHTML = ''; // Clear any falling items
 
       gameInterval = setInterval(gameLoop, 20);
-      generateLadoos();
+      generateItems();
       if (window.innerWidth <= 600) {
-        document.addEventListener('touchmove', moveCatcherMobile);
+        document.addEventListener('touchmove', moveCatcherMobile); // Mobile device move catcher
       } else {
-        document.addEventListener('mousemove', moveCatcherDesktop);
+        document.addEventListener('mousemove', moveCatcherDesktop); // Desktop device move catcher
       }
     }
 
     function gameLoop() {
-      ladoos.forEach((ladoo, index) => {
-        if (ladoo) {
-          ladoo.style.top = `${ladoo.offsetTop + fallingSpeed}px`;
+      // Move items (ladoos and stones)
+      items.forEach((item, index) => {
+        if (item) {
+          item.style.top = `${item.offsetTop + fallingSpeed}px`;
 
-          if (ladoo.offsetTop > gameContainer.offsetHeight) {
-            missedLadoos++;
-            ladoo.remove();
-            ladoos[index] = null;
+          // Check if item missed the catcher
+          if (item.offsetTop > gameContainer.offsetHeight) {
+            missedItems++;
+            item.remove();
+            items[index] = null; // Remove this item from the array
           }
 
-          if (isLadooCaught(ladoo)) {
-            score++;
-            scoreElement.textContent = score;
-            ladoo.remove();
-            ladoos[index] = null;
+          // Check if item is caught
+          if (isItemCaught(item)) {
+            if (item.classList.contains('stone')) {
+              endGame(); // End the game if stone is caught
+            } else {
+              score++;
+              scoreElement.textContent = score;
+              item.remove();
+              items[index] = null; // Remove ladoo from array
+            }
           }
         }
       });
 
-      if (missedLadoos >= 3) {
+      // End game if missed 3 items
+      if (missedItems >= 3) {
         endGame();
       }
 
+      // Increase difficulty over time
       if (score >= level * 10) {
         level++;
         increaseDifficulty();
       }
     }
 
-    function generateLadoos() {
+    function generateItems() {
       setInterval(() => {
         if (gameInterval) {
-          const ladoo = document.createElement('div');
-          const size = 20; 
+          const item = document.createElement('div');
+          const size = 20; // Keep item size constant
 
-          ladoo.classList.add('ladoo');
+          item.classList.add('falling-item');
           
-          const leftPadding = 50; 
-          const rightPadding = 100; 
+          // Randomly choose an image (ladoo or stone)
+          const itemImages = ['gl1.png', 'gl2.png', 'gl3.png', 'stone.png']; // Add stone image
+          const randomImage = itemImages[Math.floor(Math.random() * itemImages.length)];
+
+          // Randomly spawn within container bounds
+          const leftPadding = 50;
+          const rightPadding = 100;
           const maxX = gameContainer.offsetWidth - size - rightPadding;
           const randomX = Math.random() * (maxX - leftPadding) + leftPadding;
 
-          const ladooImages = ['gl1.png', 'gl2.png', 'gl3.png'];
-          const randomImage = ladooImages[Math.floor(Math.random() * ladooImages.length)];
-
-          ladoo.style.backgroundImage = `url(${randomImage})`;
-          ladoo.style.left = `${randomX}px`;
-          ladoo.style.top = '-20px';
-          ladoo.style.width = `${size}px`;
-          ladoo.style.height = `${size}px`;
-          fallingLadoos.appendChild(ladoo);
-          ladoos.push(ladoo);
+          item.style.backgroundImage = `url(${randomImage})`;
+          item.style.left = `${randomX}px`;
+          item.style.top = '-40px';
+          item.style.width = `${size}px`;
+          item.style.height = `${size}px`;
+          fallingItems.appendChild(item);
+          items.push(item);
+          
+          if (randomImage === 'stone.png') {
+            item.classList.add('stone'); // Mark as a stone item
+          }
         }
       }, spawnInterval);
     }
 
-    function isLadooCaught(ladoo) {
+    function isItemCaught(item) {
       const catcherRect = ladooCatcher.getBoundingClientRect();
-      const ladooRect = ladoo.getBoundingClientRect();
+      const itemRect = item.getBoundingClientRect();
 
       return (
-        ladooRect.left < catcherRect.left + catcherRect.width &&
-        ladooRect.left + ladooRect.width > catcherRect.left &&
-        ladooRect.top + ladooRect.height > catcherRect.top
+        itemRect.left < catcherRect.left + catcherRect.width &&
+        itemRect.left + itemRect.width > catcherRect.left &&
+        itemRect.top + itemRect.height > catcherRect.top
       );
     }
 
@@ -258,16 +273,21 @@
       const gameContainerRect = gameContainer.getBoundingClientRect();
       let newX = event.clientX - gameContainerRect.left - ladooCatcher.offsetWidth / 2;
 
+      // Prevent catcher from going out of bounds
       newX = Math.max(0, Math.min(newX, gameContainer.offsetWidth - ladooCatcher.offsetWidth));
+
       ladooCatcher.style.left = `${newX}px`;
     }
 
     function moveCatcherMobile(event) {
       event.preventDefault();
+
       const gameContainerRect = gameContainer.getBoundingClientRect();
       let newX = event.touches[0].clientX - gameContainerRect.left - ladooCatcher.offsetWidth / 2;
 
+      // Prevent catcher from going out of bounds
       newX = Math.max(0, Math.min(newX, gameContainer.offsetWidth - ladooCatcher.offsetWidth));
+
       ladooCatcher.style.left = `${newX}px`;
     }
 
@@ -281,17 +301,18 @@
     }
 
     function restartGame() {
-      missedLadoos = 0;
+      missedItems = 0;
       score = 0;
       scoreElement.textContent = score;
-      fallingLadoos.innerHTML = '';
+      fallingItems.innerHTML = '';
       gameOverElement.style.display = 'none';
       startButton.style.display = 'block';
     }
 
     function increaseDifficulty() {
+      // Increase falling speed and decrease spawn interval
       fallingSpeed += levelSpeedIncrease;
-      spawnInterval -= 50; 
+      spawnInterval -= 50;
       if (spawnInterval < 400) spawnInterval = 400;
 
       scoreElement.textContent = `${score} (Level: ${level})`;
@@ -299,3 +320,4 @@
   </script>
 </body>
 </html>
+
